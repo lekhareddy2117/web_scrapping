@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_03_25_154849) do
+ActiveRecord::Schema.define(version: 2020_03_30_083136) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -26,13 +26,16 @@ ActiveRecord::Schema.define(version: 2020_03_25_154849) do
     t.float "value"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "url_id", null: false
+    t.index ["url_id"], name: "index_stocks_charts_on_url_id"
   end
 
   create_table "urls", force: :cascade do |t|
+    t.string "company_name"
     t.string "company_code"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.string "company_name"
+    t.index ["company_code"], name: "index_urls_on_company_code", unique: true
   end
 
   create_table "users", force: :cascade do |t|
@@ -47,4 +50,5 @@ ActiveRecord::Schema.define(version: 2020_03_25_154849) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "stocks_charts", "urls"
 end

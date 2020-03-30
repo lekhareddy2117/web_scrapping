@@ -26,7 +26,10 @@ class UrlsController < ApplicationController
           if !(company_link.children[0].text.presence==nil)
             code= company_link.attributes['href'].value.split('/').last
             company_name= company_link.children[0].text
-            Url.create(:company_code=>code,:company_name=>company_name)
+            @company=Url.new
+            @company.company_name=company_name
+            @company.company_code=code
+            @company.save
           end
         end
       end
@@ -36,6 +39,7 @@ class UrlsController < ApplicationController
 
   def chart
     scrape()
+    @companies=Url.all
    @links.each do |link|
     link.each do |company_link|
       if !(company_link.children.presence==nil)
@@ -44,14 +48,20 @@ class UrlsController < ApplicationController
           charturl='https://www.moneycontrol.com/mc/widget/basicchart/get_chart_value?classic=true&sc_did='+code+'&dur=2yr'
           page = scrape_page(charturl)
           page=JSON.parse(page)["g1"]
-        
+          @companies.each do |company|
+            if company.company_code==code
+              @url_id=company.id
+            end
+          end
           if page==nil
             stocks_chart=StocksChart.new
+            stocks_chart.url_id=@url_id
             stocks_chart.c_code=code
             stocks_chart.save 
           else
             page.each do |chart|
               stocks_chart=StocksChart.new
+              stocks_chart.url_id=@url_id
               stocks_chart.c_code=code
               stocks_chart.date=chart["date"]
               stocks_chart.open=chart["open"]
@@ -60,7 +70,8 @@ class UrlsController < ApplicationController
               stocks_chart.close=chart["close"]
               stocks_chart.volume=chart["volume"]
               stocks_chart.value=chart["value"]
-              stocks_chart.save 
+              stocks_chart.save
+             
            end 
           end
         end
