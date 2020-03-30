@@ -1,0 +1,2 @@
+module StocksChartsHelper
+end
